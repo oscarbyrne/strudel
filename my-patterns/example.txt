@@ -1,0 +1,7 @@
+"0 1 2 10 11 12"
+  .base(3)
+  .customScale(
+    new FiPS(3, 7, 12).withM(0, 5).j()
+  )
+  .add(60).note().log()
+
