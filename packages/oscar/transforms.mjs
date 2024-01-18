@@ -1,5 +1,4 @@
-import { register } from '@strudel.cycles/core'
-
+import { register } from '@strudel.cycles/core';
 
 function monotonize(pcs) {
   pcs = pcs.map((p) => p % 12);
@@ -10,18 +9,8 @@ function monotonize(pcs) {
   }
   return pcs;
 }
-export const customScale = register(
-  'customScale',
-  function(list, pattern) {
-    list = monotonize(list);
-    return pattern.fmap(
-      value => list.at(value%list.length) + Math.floor(value/list.length) * 12
-    );
-  }
-);
-export const base = register(
-  'base',
-  (radix, pattern) => pattern.withValue(
-    (v) => parseInt(v, radix)
-  )
-);
+export const customScale = register('customScale', function (list, pattern) {
+  list = monotonize(list);
+  return pattern.fmap((value) => list.at(value % list.length) + Math.floor(value / list.length) * 12);
+});
+export const base = register('base', (radix, pattern) => pattern.withValue((v) => parseInt(v, radix)));
