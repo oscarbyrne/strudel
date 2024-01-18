@@ -1,5 +1,5 @@
 import { createCanvas } from 'canvas';
-import { pianoroll } from '@strudel/core';
+import { pianoroll, evalScope } from '@strudel/core';
 import { evaluate } from '@strudel/transpiler';
 import '../../../../test/runtime.mjs';
 import { getMyPatterns } from '../../my_patterns';
@@ -8,6 +8,7 @@ export async function GET({ params, request }) {
   const patterns = await getMyPatterns();
   const { name } = params;
   const tune = patterns[name];
+  await evalScope(import('oscar'));
   const { pattern } = await evaluate(tune);
   const haps = pattern.queryArc(0, 4);
   const canvas = createCanvas(800, 800);
