@@ -299,7 +299,11 @@ importers:
         specifier: ^5.0.10
         version: 5.0.10(@types/node@20.10.6)
 
-  packages/oscar: {}
+  packages/oscar:
+    dependencies:
+      '@strudel.cycles/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/repl:
     dependencies:
