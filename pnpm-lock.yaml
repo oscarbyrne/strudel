@@ -299,6 +299,8 @@ importers:
         specifier: ^5.0.10
         version: 5.0.10(@types/node@20.10.6)
 
+  packages/oscar: {}
+
   packages/repl:
     dependencies:
       '@strudel/codemirror':
@@ -604,6 +606,9 @@ importers:
       nanostores:
         specifier: ^0.9.5
         version: 0.9.5
+      oscar:
+        specifier: workspace:*
+        version: link:../packages/oscar
       react:
         specifier: ^18.2.0
         version: 18.2.0

@@ -81,6 +81,7 @@ export function loadModules() {
     import('@strudel/serial'),
     import('@strudel/soundfonts'),
     import('@strudel/csound'),
+    import('oscar'),
   ];
   if (isTauri()) {
     modules = modules.concat([

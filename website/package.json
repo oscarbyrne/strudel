@@ -39,6 +39,7 @@
     "@strudel/transpiler": "workspace:*",
     "@strudel/webaudio": "workspace:*",
     "@strudel/xen": "workspace:*",
+    "oscar": "workspace:*",
     "@supabase/supabase-js": "^2.39.1",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",

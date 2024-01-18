@@ -1,0 +1,7 @@
+{
+  "name": "oscar",
+  "version": "0.0.1",
+  "description": "Oscar's studio code",
+  "main": "index.mjs",
+  "type": "module"
+}
