@@ -1,7 +1,16 @@
-"0 1 2 10 11 12"
-  .base(3)
-  .customScale(
-    new FiPS(3, 7, 12).withM(0, 5).j()
-  )
-  .add(60).note().log()
+const mode = new FiPS(3, 7, 12, 12).withM(0, 5, 0)
+
+stack(
+  "<0:0:1 0:1:0 0:0:-1 1:0:0 -1:0:0 0:-1:0>"
+  .slow(2)
+  .onTrigger(function(_, hap) {
+    mode.dd(...hap.value)
+  }, 0),
+  "[0 1 2] [0, 2, 11, 12]"
+    .base(3)
+    .customScale(
+      ref(() => mode.j())
+    )
+    .add(60).note().log()
+) 
 
