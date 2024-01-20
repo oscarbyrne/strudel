@@ -1,4 +1,5 @@
 import { listRange } from '@strudel.cycles/core';
+import { vectorAdd } from './util.mjs';
 
 export function maximallyEvenSet(c, d, m) {
   return listRange(0, d - 1).map((k) => Math.floor((k * c + m) / d));
@@ -20,15 +21,29 @@ export class FiPS {
     return pcs;
   }
   d(...dm) {
-    return this.withM(...this.m.map((mn, n) => mn + dm[n]));
+    this.m = vectorAdd(this.m, dm);
+    console.log('New m: ' + this.m);
   }
-  dd(...dm) {
-    // TODO
+  dd(...ds) {
+    ds = ds.map(Math.sign);
+    let edge = new Array(this.m.length);
+    for (var n = 0; n < this.m.length; n++) {
+      edge[n] = this.boundary(n, ds[n]);
+    }
+    this.d(...vectorAdd(edge, ds));
   }
-  upperBoundary(n) {
-    // TODO
-  }
-  lowerBoundary(n) {
-    // TODO
+  boundary(n, sign) {
+    sign = Math.sign(sign);
+    if (sign == 0) {
+      return 0;
+    }
+    const j = this.j();
+    let k = j;
+    let d = 0;
+    while (j.every((v, i) => v == k[i])) {
+      d += sign;
+      k = this.withM(...Object.assign([], this.m, { [n]: this.m[n] + d })).j();
+    }
+    return d - 1;
   }
 }
