@@ -1,16 +1,18 @@
+/*
+  https://mtosmt.org/issues/mto.19.25.2/mto.19.25.2.plotkin.html
+  Chord Proximity, Parsimony, and Analysis with Filtered Point-Symmetry
+*/
+
 const mode = new FiPS(3, 7, 12, 12).withM(0, 5, 0)
 
 stack(
   "<0:0:1 0:1:0 0:0:-1 1:0:0 -1:0:0 0:-1:0>"
-  .slow(2)
-  .onTrigger(function(_, hap) {
-    mode.dd(...hap.value)
-  }, 0),
+    .slow(2)
+    .onTrigger((_, hap) => mode.dd(...hap.value), 0),
   "[0 1 2] [0, 2, 11, 12]"
     .base(3)
-    .customScale(
-      ref(() => mode.j())
-    )
-    .add(60).note().log()
+    .customScale(ref(() => mode.j()))
+    .add(60)
+    .note()
 ) 
 
