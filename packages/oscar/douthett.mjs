@@ -5,34 +5,39 @@ export function J(c, d, m) {
   return (...k) => k.map((ki) => Math.floor((ki * c + m) / d))
 }
 export class FiPS {
-  constructor(...c) {
+  constructor(c) {
     this.c = c;
-    this._m = new Array(c.length - 1).fill(0);
   }
-  set m(m) {
-    console.log('New m: ' + m);
-    if (!Array.isArray(m) || m.length != this.c.length -1) {
-      throw new Error('Not a valid m: ' + m);
-    }
-    this._m = m;
+  k(m) {
+    return new K(this, m);
   }
-  get m() {
-    return this._m;
-  }
-  J(beacon = null) {
-    let k = beacon || listRange(0, this.c[0] - 1);
+  j(m) {
+    let k = listRange(0, this.c[0] - 1);
     for (var n = 0; n < this.c.length - 1; n++) {
       k = J(this.c[n + 1], this.c[n], this.m[n])(...k);
     }
     return k;
   }
-  d(...dm) {
-    this.m = vectorAdd(this.m, dm);
+}
+export class K {
+  constructor(fips, m) {
+    this.fips = fips;
+    this.m = m;
   }
-  dd(...dm) {
-    const j = this.J();
-    while (this.J().every((k, n) => k == j[n])) {
-      this.d(...dm);
-    }
+  get pcs() {
+    return this.fips.j(this.m);
+  }
+}
+export class D {
+  constructor(fips, dm) {
+    this.fips = fips;
+    this.dm = dm;
+  }
+  apply(k, contextual=true) {
+    let m = k.m;
+    do {
+      m += this.dm;
+    } while (!contextual || k.pcs == this.fips.k(m).pcs);
+    return new K(this.fips, m);
   }
 }
