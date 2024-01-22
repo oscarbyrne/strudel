@@ -23,3 +23,26 @@ export function D(fips, dm, contextual=true) {
     return mm;
   }
 }
+export class K {
+  constructor(filters, initialM) {
+    this.fips = new FiPS(filters);
+    this.initialM = initialM;
+    this.m = initialM;
+  }
+  set m(m) {
+    console.log('New coords: ' + m);
+    this._m = m;
+  }
+  get m() {
+    return this._m;
+  }
+  notes() {
+    return this.fips(this.m);
+  }
+  reset() {
+    this.m = this.initialM;
+  }
+  displace(dm) {
+    this.m = D(this.fips, dm)(this.m);
+  }
+}
