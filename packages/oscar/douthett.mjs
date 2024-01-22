@@ -1,48 +1,50 @@
-import { listRange } from '@strudel/core';
-import { OrderedPcSet } from './tonal.mjs';
-import { vectorAdd } from './util.mjs';
+import { listRange, _mod } from '@strudel/core';
+import { Vector } from './util.mjs';
 
-export function J(c, d, m) {
-  return (k) => Math.floor((k * c + m) / d);
-}
-export function FiPS(c) {
-  return (m) => {
-    let k = listRange(0, c[0] - 1);
-    for (var n = 0; n < c.length - 1; n++) {
-      k = k.map(J(c[n + 1], c[n], m[n]));
-    }
+export function J(d, m, k) {
+  if (d.length < 2 || m.length < 1) {
     return k;
   }
+  k = J(d.slice(1), m.slice(1), k);
+  return Math.floor((k * d[0] + m[0]) / d[1]);
 }
-export function D(fips, dm, contextual=true) {
-  return (m) => {
-    let mm = m;
-    do {
-      mm = vectorAdd(mm, dm);
-    } while (contextual && OrderedPcSet.isEqual(fips(mm), fips(m)));
-    return mm;
+export function D(d, m0, beacon, dm, contextual = true) {
+  if (Vector.magnitude(dm) == 0) {
+    return m0;
   }
+  const nonT0 = (m) => beacon.every((k) => J(d, m0, k) == J(d, m, k));
+  let mn = m0;
+  do {
+    mn = Vector.add(mn, dm);
+  } while (contextual && nonT0(mn));
+  return mn;
 }
 export class K {
-  constructor(filters, initialM) {
-    this.fips = new FiPS(filters);
-    this.initialM = initialM;
-    this.m = initialM;
+  constructor(d, m0) {
+    this.d = d;
+    this.m0 = m0;
+    this.m = m0;
   }
   set m(m) {
-    console.log('New coords: ' + m);
+    console.log('New m: ' + m);
     this._m = m;
   }
   get m() {
     return this._m;
   }
-  notes() {
-    return this.fips(this.m);
+  get beacon() {
+    return listRange(0, this.d.at(-1) - 1);
+  }
+  get notes() {
+    return this.beacon.map((k) => J(this.d, this.m, k));
+  }
+  get pcs() {
+    return this.notes.map((k) => _mod(k, 12));
   }
   reset() {
-    this.m = this.initialM;
+    this.m = this.m0;
   }
   displace(dm) {
-    this.m = D(this.fips, dm)(this.m);
+    this.m = D(this.d, this.m, this.beacon, dm);
   }
 }
