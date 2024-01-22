@@ -1,43 +1,25 @@
-import { listRange } from '@strudel.cycles/core';
+import { listRange } from '@strudel/core';
+import { OrderedPcSet } from './tonal.mjs';
 import { vectorAdd } from './util.mjs';
 
 export function J(c, d, m) {
-  return (...k) => k.map((ki) => Math.floor((ki * c + m) / d))
+  return (k) => Math.floor((k * c + m) / d);
 }
-export class FiPS {
-  constructor(c) {
-    this.c = c;
-  }
-  k(m) {
-    return new K(this, m);
-  }
-  j(m) {
-    let k = listRange(0, this.c[0] - 1);
-    for (var n = 0; n < this.c.length - 1; n++) {
-      k = J(this.c[n + 1], this.c[n], this.m[n])(...k);
+export function FiPS(c) {
+  return (m) => {
+    let k = listRange(0, c[0] - 1);
+    for (var n = 0; n < c.length - 1; n++) {
+      k = k.map(J(c[n + 1], c[n], m[n]));
     }
     return k;
   }
 }
-export class K {
-  constructor(fips, m) {
-    this.fips = fips;
-    this.m = m;
-  }
-  get pcs() {
-    return this.fips.j(this.m);
-  }
-}
-export class D {
-  constructor(fips, dm) {
-    this.fips = fips;
-    this.dm = dm;
-  }
-  apply(k, contextual=true) {
-    let m = k.m;
+export function D(fips, dm, contextual=true) {
+  return (m) => {
+    let mm = m;
     do {
-      m += this.dm;
-    } while (!contextual || k.pcs == this.fips.k(m).pcs);
-    return new K(this.fips, m);
+      mm = vectorAdd(mm, dm);
+    } while (contextual && OrderedPcSet.isEqual(fips(mm), fips(m)));
+    return mm;
   }
 }

@@ -5,6 +5,6 @@
   "main": "index.mjs",
   "type": "module",
   "dependencies": {
-    "@strudel.cycles/core": "workspace:*"
+    "@strudel/core": "workspace:*"
   }
 }
