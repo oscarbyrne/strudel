@@ -1,18 +1,27 @@
 /*
-  https://mtosmt.org/issues/mto.19.25.2/mto.19.25.2.plotkin.html
-  Chord Proximity, Parsimony, and Analysis with Filtered Point-Symmetry
+  Reference: https://mtosmt.org/issues/mto.19.25.2/mto.19.25.2.plotkin.html
+  Composing Chord Progressions with Filtered Point-Symmetry
 */
 
-const mode = new FiPS(3, 7, 12, 12).withM(0, 5, 0)
+let chord = new K(
+  [12, 12, 7, 7, 3, 3],
+  [0, 5, 0, 0, 0]
+)
 
 stack(
-  "<0:0:1 0:1:0 0:0:-1 1:0:0 -1:0:0 0:-1:0>"
-    .slow(2)
-    .onTrigger((_, hap) => mode.dd(...hap.value), 0),
-  "[0 1 2] [0, 2, 11, 12]"
-    .base(3)
-    .customScale(ref(() => mode.j()))
+  "<1:0:0:0:0 0:0:0:1:0>"
+    .onTrigger((_, hap) => {
+      chord.displace(hap.value)
+    }, 0),
+  "0 / 8"
+    .onTrigger((_, hap) => {
+      chord.reset()
+    }, 0)
+    .note(),
+  "[0, 1, 2]"
+    .customScale(
+      ref(() => chord.pcs)
+    )
     .add(60)
-    .note()
-) 
-
+    .note(),
+)
