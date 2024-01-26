@@ -1,50 +1,89 @@
-import { listRange, _mod } from '@strudel/core';
+import { listRange } from '@strudel/core';
 import { Vector } from './util.mjs';
 
-export function J(d, m, k) {
-  if (d.length < 2 || m.length < 1) {
-    return k;
-  }
-  k = J(d.slice(1), m.slice(1), k);
-  return Math.floor((k * d[0] + m[0]) / d[1]);
-}
-export function D(d, m0, beacon, dm, contextual = true) {
-  if (Vector.magnitude(dm) == 0) {
-    return m0;
-  }
-  const nonT0 = (m) => beacon.every((k) => J(d, m0, k) == J(d, m, k));
-  let mn = m0;
-  do {
-    mn = Vector.add(mn, dm);
-  } while (contextual && nonT0(mn));
-  return mn;
-}
-export class K {
-  constructor(d, m0) {
+export class FiPS {
+  #m;
+  #d;
+
+  constructor(d, m) {
     this.d = d;
-    this.m0 = m0;
-    this.m = m0;
+    this.m = m;
   }
-  set m(m) {
-    console.log('New m: ' + m);
-    this._m = m;
+  #validate() {
+    if (this.d.length != this.m.length + 1) {
+      throw new Error('Expect d.length == m.length + 1');
+    }
+    if (!this.d.every((e, i, a) => !i || a[i - 1] >= e)) {
+      throw new Error('d should be descending');
+    }
+    if (!this.d.every((e, i, a) => [0, -1].map((o) => o + a.lastIndexOf(e)).includes(a.indexOf(e)))) {
+      throw new Error('Filters of the same order cannot be repeated more than once');
+    }
+    if (!this.d.every((e) => e > 0)) {
+      throw new Error('All d should be > 0');
+    }
+    if (!this.d.every((e) => Number.isInteger(e))) {
+      throw new Error('All d should be integer values');
+    }
+  }
+  get d() {
+    return this.#d;
+  }
+  set d(d) {
+    this.#d = d;
+    this.#validate();
   }
   get m() {
-    return this._m;
+    return this.#m || new Array(this.d.length - 1).fill(0);
   }
-  get beacon() {
-    return listRange(0, this.d.at(-1) - 1);
+  set m(m) {
+    this.#m = m;
+    this.#validate();
   }
-  get notes() {
-    return this.beacon.map((k) => J(this.d, this.m, k));
+  J(k) {
+    if (this.d.length < 2 || this.m.length < 1) {
+      return k;
+    }
+    k = new FiPS(this.d.slice(1), this.m.slice(1)).J(k);
+    return Math.floor((k * this.d.at(0) + this.m.at(0)) / this.d.at(1));
   }
-  get pcs() {
-    return this.notes.map((k) => _mod(k, 12));
+  isEqual(that) {
+    if (!(that instanceof Chord)) {
+      return false;
+    }
+    if (this.d.at(-1) != that.d.at(-1)) {
+      return false;
+    }
+    return listRange(0, this.d.at(-1) - 1).every((k) => this.J(k) == that.J(k));
   }
-  reset() {
-    this.m = this.m0;
+  #contiguous(rotation, filterNumber) {
+    if (rotation != Math.sign(rotation)) {
+      throw new Error('The values of mn in d* are restricted to {-1, 0, 1}');
+    }
+    if (rotation == 0) {
+      return this.m[filterNumber];
+    }
+    let that = new FiPS([...this.d], [...this.m]);
+    while (this.isEqual(that)) {
+      that.m[filterNumber] += rotation;
+    }
+    return that.m[filterNumber];
   }
-  displace(dm) {
-    this.m = D(this.d, this.m, this.beacon, dm);
+  displace(m) {
+    return new FiPS([...this.d], m.map(this.#contiguous));
+  }
+  chain(displacements, repetitions = 1) {
+    let chords = [this];
+    for (var i = 0; i < repetitions; i++) {
+      for (const m of displacements) {
+        chords.push(chords.at(-1).displace(m));
+      }
+    }
+    return chords;
+  }
+  get scale() {
+    const d = this.d.at(-2);
+    const a = this.m.at(-1) / this.d.at(-1);
+    return new FiPS([...this.d.slice(0, -1), d], [...this.m.slice(0, -1), d * a]);
   }
 }
