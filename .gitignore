@@ -45,6 +45,7 @@ tidal-drum-machines
 webaudiofontdata
 src-tauri/target
 *.swp
+*.swo
 
 # BEGIN JetBrains -> END JetBrains
 
