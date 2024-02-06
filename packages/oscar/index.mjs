@@ -1,2 +1,2 @@
 export * from './douthett.mjs';
-export * from './util.mjs';
+export * from './midi.mjs';
