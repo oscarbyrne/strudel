@@ -47,7 +47,7 @@ export class FiPS {
     return Math.floor((k * this.d[0] + this.m[0]) / this.d[1]);
   }
   isEqual(that) {
-    if (!(that instanceof Chord)) {
+    if (!(that instanceof FiPS)) {
       return false;
     }
     if (this.d.at(-1) != that.d.at(-1)) {
@@ -69,7 +69,7 @@ export class FiPS {
     return that.m[filterNumber];
   }
   displace(m) {
-    return new FiPS([...this.d], m.map(this.#contiguous));
+    return new FiPS([...this.d], m.map(this.#contiguous, this));
   }
   chain(displacements, repetitions = 1) {
     let chords = [this];
