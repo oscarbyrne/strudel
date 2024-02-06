@@ -1,5 +1,4 @@
-import { listRange } from '@strudel/core';
-import { Vector } from './util.mjs';
+import { listRange, register } from '@strudel/core';
 
 export class FiPS {
   #m;
@@ -45,7 +44,7 @@ export class FiPS {
       return k;
     }
     k = new FiPS(this.d.slice(1), this.m.slice(1)).J(k);
-    return Math.floor((k * this.d.at(0) + this.m.at(0)) / this.d.at(1));
+    return Math.floor((k * this.d[0] + this.m[0]) / this.d[1]);
   }
   isEqual(that) {
     if (!(that instanceof Chord)) {
@@ -88,4 +87,12 @@ export class FiPS {
     const mn = this.m.at(-2) + this.d.at(-3) * Math.floor(this.m.at(-1) / this.d.at(-1));
     return new FiPS(this.d.slice(0, -1), [...this.m.slice(0, -2), mn]);
   }
+  get normalized() {
+    return new FiPS(
+      [...this.d],
+      this.m.map((mn, n) => mn % this.d[n]),
+    );
+  }
 }
+
+const J = register('J', (fips, pattern) => pattern.fmap((k) => fips.normalized.J(k)));
