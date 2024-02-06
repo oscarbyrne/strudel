@@ -3,25 +3,8 @@
   Composing Chord Progressions with Filtered Point-Symmetry
 */
 
-let chord = new K(
-  [12, 12, 7, 7, 3, 3],
-  [0, 5, 0, 0, 0]
-)
+let chord = new FiPS([12, 7, 3], [5, 0])
 
-stack(
-  "<1:0:0:0:0 0:0:0:1:0>"
-    .onTrigger((_, hap) => {
-      chord.displace(hap.value)
-    }, 0),
-  "0 / 8"
-    .onTrigger((_, hap) => {
-      chord.reset()
-    }, 0)
-    .note(),
-  "[0, 1, 2]"
-    .customScale(
-      ref(() => chord.pcs)
-    )
-    .add(60)
-    .note(),
-)
+"0 1 2"
+  .J(chord)
+  .note().add(60).s('piano')
