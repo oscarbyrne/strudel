@@ -3,8 +3,22 @@
   Composing Chord Progressions with Filtered Point-Symmetry
 */
 
-let chord = new FiPS([12, 7, 3], [5, 0])
-
-"0 1 2"
-  .J(chord)
-  .note().add(60).s('piano')
+const chords = "<0 1 2 3>".pick(
+  new FiPS(
+    [12, 12, 7, 7, 3],
+    [0, 9, 0, 6]
+  ).chain([
+    [+1, -1, -1, +1],
+    [+1,  0, +1, +1],
+    [ 0, -1, +1, +1]
+  ])
+)
+stack(
+  "~ 4 ~ [2 4 6]".add("<0 4>").J(chords.fmap((chord) => chord.outer)).note().add(72).s('piano'),
+  "~ [0, 5, 6]".J(chords).note().add(60).s('piano').n(1),
+  "[4@3 2]@2 <~ [~ 2 3]>".add("<0 5 0 3>").slow(2).J(chords.fmap((chord) => chord.outer)).note().add(60).s('gm_oboe'),
+  "2".euclidRot(3,8,0).J(chords).note().add(60).s('gm_pizzicato_strings').n(3),
+  "1".euclidRot(3,8,1).J(chords).note().add(48).s('gm_pizzicato_strings').n(2),
+  "0".euclidRot(3,8,2).J(chords).note().add(48).s('gm_pizzicato_strings').n(4),
+  "0".euclidRot(3,4,0).slow(2).J(chords).note().add(36).s('gm_fretless_bass'),
+).room(0.5)
