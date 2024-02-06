@@ -81,9 +81,11 @@ export class FiPS {
     }
     return chords;
   }
-  get scale() {
-    const d = this.d.at(-2);
-    const a = this.m.at(-1) / this.d.at(-1);
-    return new FiPS([...this.d.slice(0, -1), d], [...this.m.slice(0, -1), d * a]);
+  get outer() {
+    if (this.d.length == 2) {
+      return new FiPS([12, ...this.d], [0, ...this.m]).outer;
+    }
+    const mn = this.m.at(-2) + this.d.at(-3) * Math.floor(this.m.at(-1) / this.d.at(-1));
+    return new FiPS(this.d.slice(0, -1), [...this.m.slice(0, -2), mn]);
   }
 }
