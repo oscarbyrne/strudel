@@ -13,12 +13,26 @@ const chords = "<0 1 2 3>".pick(
     [ 0, -1, +1, +1]
   ])
 )
-stack(
-  "~ 4 ~ [2 4 6]".add("<0 4>").J(chords.fmap((chord) => chord.outer)).note().add(72).s('piano'),
-  "~ [0, 5, 6]".J(chords).note().add(60).s('piano').n(1),
-  "[4@3 2]@2 <~ [~ 2 3]>".add("<0 5 0 3>").slow(2).J(chords.fmap((chord) => chord.outer)).note().add(60).s('gm_oboe'),
+const scales = chords.fmap((chord) => chord.outer)
+
+const pizz = stack(
   "2".euclidRot(3,8,0).J(chords).note().add(60).s('gm_pizzicato_strings').n(3),
   "1".euclidRot(3,8,1).J(chords).note().add(48).s('gm_pizzicato_strings').n(2),
   "0".euclidRot(3,8,2).J(chords).note().add(48).s('gm_pizzicato_strings').n(4),
-  "0".euclidRot(3,4,0).slow(2).J(chords).note().add(36).s('gm_fretless_bass'),
-).room(0.5)
+)
+const cllo = "0".euclidRot(3,4,0).slow(2).J(chords).note().add(48).s('gm_cello').adsr(".7:.2:.8:.1")
+const pno1 = "~ 4 ~ [2 4 6]".add("<0 4>").J(scales).note().add(72).s('piano')
+const pno2 = "~ [0, 5, 6]".J(chords).note().add(60).s('piano')
+const oboe = "[4@3 2]@2 <~ [~ 2 3]>".add("<0 5 0 3>").slow(2).J(scales).note().add(60).s('gm_oboe').adsr(".1:0:.8:.1")
+
+"<0@6 1@2 2@8 3 4@3 3 4@3 5@4 6@2 7@2>".pick([
+  stack(pizz),
+  stack(pizz, cllo),
+  stack(pizz, cllo, pno1, pno2),
+  stack(pizz, cllo,       pno2, oboe),
+  stack(pizz, cllo, pno1, pno2, oboe),
+  stack(pizz,       pno1, pno2, oboe),
+  stack(                  pno2, oboe),
+  stack(                        oboe),
+]).room(0.5)
+
