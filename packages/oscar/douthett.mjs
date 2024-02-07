@@ -4,9 +4,10 @@ export class FiPS {
   #m;
   #d;
 
-  constructor(d, m) {
+  constructor(d, m, octaveInterval = 12) {
     this.d = d;
     this.m = m;
+    this.octaveInterval = octaveInterval;
   }
   #validate() {
     if (this.d.length != this.m.length + 1) {
@@ -23,6 +24,9 @@ export class FiPS {
     }
     if (!this.d.every((e) => Number.isInteger(e))) {
       throw new Error('All d should be integer values');
+    }
+    if (this.d[0] > this.octaveInterval) {
+      throw new Error('Maximum value of d cannot be larger than octave interval');
     }
   }
   get d() {
@@ -43,7 +47,7 @@ export class FiPS {
     if (this.d.length < 2 || this.m.length < 1) {
       return k;
     }
-    k = new FiPS(this.d.slice(1), this.m.slice(1)).J(k);
+    k = new FiPS(this.d.slice(1), this.m.slice(1), this.octaveInterval).J(k);
     return Math.floor((k * this.d[0] + this.m[0]) / this.d[1]);
   }
   isEqual(that) {
@@ -62,14 +66,14 @@ export class FiPS {
     if (rotation == 0) {
       return this.m[filterNumber];
     }
-    let that = new FiPS([...this.d], [...this.m]);
+    let that = new FiPS([...this.d], [...this.m], this.octaveInterval);
     while (this.isEqual(that)) {
       that.m[filterNumber] += rotation;
     }
     return that.m[filterNumber];
   }
   displace(m) {
-    return new FiPS([...this.d], m.map(this.#contiguous, this));
+    return new FiPS([...this.d], m.map(this.#contiguous, this), this.octaveInterval);
   }
   chain(displacements, repetitions = 1) {
     let chords = [this];
@@ -82,17 +86,18 @@ export class FiPS {
   }
   get outer() {
     if (this.d.length == 2) {
-      return new FiPS([12, ...this.d], [0, ...this.m]).outer;
+      return new FiPS([this.octaveInterval, ...this.d], [0, ...this.m], this.octaveInterval).outer;
     }
     const mn = this.m.at(-2) + this.d.at(-3) * Math.floor(this.m.at(-1) / this.d.at(-1));
-    return new FiPS(this.d.slice(0, -1), [...this.m.slice(0, -2), mn]);
+    return new FiPS(this.d.slice(0, -1), [...this.m.slice(0, -2), mn], this.octaveInterval);
   }
   get normalized() {
     return new FiPS(
       [...this.d],
       this.m.map((mn, n) => mn % this.d[n]),
+      this.octaveInterval,
     );
   }
 }
 
-const J = register('J', (fips, pattern) => pattern.fmap((k) => fips.normalized.J(k)));
+register('chord', (fips, octave, pattern) => pattern.fmap((k) => fips.normalized.J(k)).note().add(fips.octaveInterval * octave));
