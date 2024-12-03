@@ -32,8 +32,35 @@ const e2 = {
     y: 103,
   },
   inscribe: function(part, pattern) {
-    return pattern.midichan(part).midi(MIDI_DEVICE);
+    return pattern
+      .midichan(part).midi(MIDI_DEVICE)
+      .withValue(
+        v => {
+          if('value' in v) {
+            const octave = v.octave || 0;
+            return {
+              note: v.value + octave*12,
+              ...v
+            }
+          } else {
+            return v;
+          }
+        }
+      );
   },
+  // Adjust oscillator pitch to play fractional notes
+  microtonal: function(pattern) {
+    return pattern
+      .floor()
+      .ccn(e2.oscillator.pitch)
+      .ccv(
+        pattern.withValue(
+          // 14/127 is equal to 1 semitone pitch bend
+          // CC scale is logarithmic for some reason
+          v => 0.5 + Math.log10(1+9*(v%1))*14/127
+        )
+      );
+  }
 };
 
 const sp = {
@@ -170,13 +197,18 @@ function warp(fips, pattern) {
 };
 
 // Transform pitches of a pattern to match scale key
-// defined by FiPS, allowing for octave offset
-function weft(fips, octave, pattern) {
-  return pattern.withValue(
-    k => Math.ceil(
-      12*(octave + fips.J(k)/fips.d0)
+// defined by FiPS
+function weft(fips, pattern) {
+  return e2.microtonal(
+    pattern.withValue(
+      k => {
+        // Allow interstitial notes like with rhythm
+        const hi = fips.J(Math.ceil(k));
+        const lo = fips.J(Math.floor(k));
+        return (lo + k%1 * (hi-lo))*12/fips.d0
+      }
     )
-  ).note();
+  );
 };
 
 function cc(n, scalar, pattern) {
@@ -188,7 +220,3 @@ register('sp', sp.inscribe);
 register('warp', warp);
 register('weft', weft);
 register('cc', cc);
-
-
-cpm(132/4);
-
