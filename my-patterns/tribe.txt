@@ -35,29 +35,33 @@ const levels = register('levels', function(n, min, max, offset, pattern) {
   return pattern.div(n - 1).range(min, max).add(offset).div(127)
 })
 
-const jump = register('jump', function(n, pattern) {
-  return pattern.add(n * 12)
-})
-
 const lfo = function(signal, bars, min, max, offset) {
   return signal.slow(bars).seg(16 * bars).range(min, max).add(offset).div(127)
 }
 
 stack(
   // tribe.sync(),
-  tribe.part(1)(note("[x ~ ~ ~] [~ ~ x ~] [~ ~ ~ ~] [~ ~ ~ ~]".inhabit({x: 'C4'}))),
-  tribe.part(2)(note("[~ ~ ~ ~] [x ~ ~ ~] [~ ~ ~ ~] [x ~ ~ ~]".inhabit({x: 'C4'}))),
+  tribe.part(1)(note('C4').struct("[x ~ ~ ~] [~ ~ x ~] [~ ~ ~ ~] [~ ~ ~ ~]")),
+  tribe.part(2)(note('C4').struct("[~ ~ ~ ~] [x ~ ~ ~] [~ ~ ~ ~] [x ~ ~ ~]")),
   tribe.part(3)(
-    note("[x x x x]!4".inhabit({x: 'C4'})),
-    amp( "[7 2 3 4]!4".levels(8, 0, 100, 0))
+    note('C4').struct(
+      "[x x x x]!4"
+    ),
+    amp(
+      "[7 2 3 4]!4".levels(8, 0, 100, 0)
+    )
   ),
   tribe.part(5)(
-    note(
-        "[~ ~ ~ ~ ] [5 ~ 5 1] [0 ~ 1 ~ ] [5 ~ 5 1]".inhabit([0, 2, 3, 5, 7, 9, 11]).jump(
-        "[6 5 5 6]!4")),
+    n(0).struct(
+      "[~ ~ ~ ~ ] [x ~ x x] [x ~ x ~ ] [x ~ x x]"
+    ).scale('E#:minor:blues').scaleTranspose(
+      "[~ ~ ~ ~ ] [5 ~ 7 1] [0 ~ 1 ~ ] [5 ~ 5 1]"
+    ).transpose(
+      "[6P 5P 5P 6P]!4"
+    ),
     amp("[0 1 0 2]!4".levels(3, 30, 60, 0)),
     glide("[0 1 1 0]!4".levels(2, 0, 32, 0)),
     edit(lfo(sine, 2, 0, 38, 64)),
     cutoff(lfo(sine.late(0.25), 8, 60, 100, 0))
-  )
+  ),
 )
